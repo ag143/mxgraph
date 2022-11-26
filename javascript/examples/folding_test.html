@@ -1,0 +1,170 @@
+<!--
+  Copyright (c) 2006-2013, JGraph Ltd
+  
+  Folding example for mxGraph. This example demonstrates
+  using a layout to implement a nested group structure.
+-->
+<html>
+<head>
+	<title>Folding example for mxGraph</title>
+
+	<!-- Sets the basepath for the library if not in same directory -->
+	<script type="text/javascript">
+		mxBasePath = '../src';
+	</script>
+
+	<!-- Loads and initializes the library -->
+	<script type="text/javascript" src="../src/js/mxClient.js"></script>
+
+	<!-- Example code -->
+	<script type="text/javascript">
+		// Program starts here. Creates a sample graph in the
+		// DOM node with the specified ID. This function is invoked
+		// from the onLoad event handler of the document (see below).
+		function main(container)
+		{
+			// Checks if the browser is supported
+			if (!mxClient.isBrowserSupported())
+			{
+				// Displays an error message if the browser is not supported.
+				mxUtils.error('Browser is not supported!', 200, false);
+			}
+			else
+			{
+				// Enables crisp rendering of rectangles in SVG
+				mxConstants.ENTITY_SEGMENT = 20;
+				
+				// Creates the graph inside the given container
+				var graph = new mxGraph(container);
+				graph.setDropEnabled(true);
+				
+				// Disables global features
+				graph.collapseToPreferredSize = false;
+				graph.constrainChildren = false;
+				graph.cellsSelectable = false;
+				graph.extendParentsOnAdd = false;
+				graph.extendParents = false;
+				graph.border = 10;
+
+				// Sets global styles
+				var style = graph.getStylesheet().getDefaultEdgeStyle();
+				style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
+				style[mxConstants.STYLE_ROUNDED] = true;
+
+				style = graph.getStylesheet().getDefaultVertexStyle();
+				style[mxConstants.STYLE_FILLCOLOR] = '#ffffff';
+				style[mxConstants.STYLE_SHAPE] = 'swimlane';
+				style[mxConstants.STYLE_STARTSIZE] = 30;
+				
+				style = [];
+				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+				style[mxConstants.STYLE_STROKECOLOR] = 'none';
+				style[mxConstants.STYLE_FILLCOLOR] = 'none';
+				style[mxConstants.STYLE_FOLDABLE] = false;
+				graph.getStylesheet().putCellStyle('column', style);
+				
+				// Installs auto layout for all levels
+				var layout = new mxStackLayout(graph, true);
+				layout.border = graph.border;
+				var layoutMgr = new mxLayoutManager(graph);
+				layoutMgr.getLayout = function(cell)
+				{
+					if (!cell.collapsed)
+					{
+						if (cell.parent != graph.model.root)
+						{
+							layout.resizeParent = true;
+							layout.horizontal = false;
+							layout.spacing = 10;
+						}
+						else
+						{
+							layout.resizeParent = true;
+							layout.horizontal = true;
+							layout.spacing = 40;
+						}
+						
+						return layout;
+					}
+					
+					return null;
+				};
+
+				// Resizes the container
+				graph.setResizeContainer(true);
+				
+				// Gets the default parent for inserting new cells. This
+				// is normally the first child of the root (ie. layer 0).
+				var parent = graph.getDefaultParent();
+								
+				// Adds cells to the model in a single step
+				graph.getModel().beginUpdate();
+				try
+				{
+					var col1 = graph.insertVertex(parent, null, '', 0, 0, 120, 100, 'column');
+					
+					var v1 = graph.insertVertex(col1, null, '1asdfds', 0, 0, 100, 30);
+					v1.collapsed = true;
+					
+					var v11 = graph.insertVertex(v1, null, '1.11', 0, 0, 80, 30);
+					v11.collapsed = true;
+					
+					var v111 = graph.insertVertex(v11, null, '1.1.1', 0, 0, 60, 30);
+					var v112 = graph.insertVertex(v11, null, '1.1.2', 0, 0, 60, 30);
+					
+					var v12 = graph.insertVertex(v1, null, '1.2', 0, 0, 80, 30);
+					
+					var col2 = graph.insertVertex(parent, null, '', 0, 0, 120, 0, 'column');
+					
+					var v2 = graph.insertVertex(col2, null, '2', 0, 0, 100, 30);
+					v2.collapsed = true;
+					
+					var v21 = graph.insertVertex(v2, null, '2.1', 0, 0, 80, 30);
+					v21.collapsed = true;
+
+					var v211 = graph.insertVertex(v21, null, '2.1.1', 0, 0, 60, 30);
+					var v212 = graph.insertVertex(v21, null, '2.1.2', 0, 0, 60, 30);
+					
+					var v22 = graph.insertVertex(v2, null, '2.2', 0, 0, 80, 30);
+
+					var v3 = graph.insertVertex(col2, null, '3', 0, 0, 100, 30);
+					v3.collapsed = true;
+
+					var v31 = graph.insertVertex(v3, null, '3.1', 0, 0, 80, 30);
+					v31.collapsed = true;
+
+					var v311 = graph.insertVertex(v31, null, '3.1.1', 0, 0, 60, 30);
+					var v312 = graph.insertVertex(v31, null, '3.1.2', 0, 0, 60, 30);
+					
+					var v32 = graph.insertVertex(v3, null, '3.2', 0, 0, 80, 30);
+					var v33= graph.insertVertex(parent, null, '', 20, 20, 80, 80,
+                            'shape=image;image=data:image/svg+xml,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJFYmVuZV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI1MCAyNTA7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4mI3hhOzxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+JiN4YTsJLnN0MHtmaWxsOiNhMmEyYTI7fSYjeGE7CS5zdDF7ZmlsbDojOGU4ZThlO30mI3hhOwkuc3Qye2ZpbGw6I0ZGRkZGRjt9JiN4YTs8L3N0eWxlPiYjeGE7PHRpdGxlPlplaWNoZW5mbMOkY2hlIDE8L3RpdGxlPiYjeGE7PHBhdGggY2xhc3M9InN0MCIgZD0iTTIzNy41LDIyNy45YzAsNS4zLTQuMyw5LjYtOS41LDkuNmMwLDAsMCwwLDAsMEgyMi4xYy01LjMsMC05LjYtNC4zLTkuNi05LjVjMCwwLDAsMCwwLDBWMjIuMSAgYzAtNS4zLDQuMy05LjYsOS41LTkuNmMwLDAsMCwwLDAsMGgyMDUuOWM1LjMsMCw5LjYsNC4zLDkuNiw5LjVjMCwwLDAsMCwwLDBWMjI3Ljl6Ii8+JiN4YTs8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMjM3LjUsMjI3LjljMCw1LjMtNC4zLDkuNi05LjUsOS42YzAsMCwwLDAsMCwwSDg5LjZMNDQuOCwxOTJsMjcuOS00NS41bDgyLjctMTAyLjdsODIuMSw4NC41VjIyNy45eiIvPiYjeGE7PHBhdGggY2xhc3M9InN0MiIgZD0iTTE5Ny4xLDEzOC4zaC0yMy43bC0yNS00Mi43YzUuNy0xLjIsOS44LTYuMiw5LjctMTJWNTEuNWMwLTYuOC01LjQtMTIuMy0xMi4yLTEyLjNjMCwwLTAuMSwwLTAuMSwwaC00MS43ICBjLTYuOCwwLTEyLjMsNS40LTEyLjMsMTIuMmMwLDAsMCwwLjEsMCwwLjF2MzIuMWMwLDUuOCw0LDEwLjgsOS43LDEybC0yNSw0Mi43SDUyLjljLTYuOCwwLTEyLjMsNS40LTEyLjMsMTIuMmMwLDAsMCwwLjEsMCwwLjEgIHYzMi4xYzAsNi44LDUuNCwxMi4zLDEyLjIsMTIuM2MwLDAsMC4xLDAsMC4xLDBoNDEuN2M2LjgsMCwxMi4zLTUuNCwxMi4zLTEyLjJjMCwwLDAtMC4xLDAtMC4xdi0zMi4xYzAtNi44LTUuNC0xMi4zLTEyLjItMTIuMyAgYzAsMC0wLjEsMC0wLjEsMGgtNGwyNC44LTQyLjRoMTkuM2wyNC45LDQyLjRoLTQuMWMtNi44LDAtMTIuMyw1LjQtMTIuMywxMi4yYzAsMCwwLDAuMSwwLDAuMXYzMi4xYzAsNi44LDUuNCwxMi4zLDEyLjIsMTIuMyAgYzAsMCwwLjEsMCwwLjEsMGg0MS43YzYuOCwwLDEyLjMtNS40LDEyLjMtMTIuMmMwLDAsMC0wLjEsMC0wLjF2LTMyLjFjMC02LjgtNS40LTEyLjMtMTIuMi0xMi4zICBDMTk3LjIsMTM4LjMsMTk3LjIsMTM4LjMsMTk3LjEsMTM4LjN6Ii8+JiN4YTs8L3N2Zz4=;');
+					
+					graph.insertEdge(parent, null, '', v111, v211);
+					graph.insertEdge(parent, null, '', v112, v212);
+					graph.insertEdge(parent, null, '', v112, v22);
+
+					graph.insertEdge(parent, null, '', v12, v311);
+					graph.insertEdge(parent, null, '', v12, v312);
+					graph.insertEdge(parent, null, '', v12, v32);
+					graph.insertEdge(parent, null, '', v12, v33);
+					}
+				finally
+				{
+					// Updates the display
+					graph.getModel().endUpdate();
+				}
+			}
+		};
+	</script>
+</head>
+
+<!-- Page passes the container for the graph to the program -->
+<body onload="main(document.getElementById('graphContainer'))">
+
+	<!-- Creates a container for the graph with a grid wallpaper -->
+	<div id="graphContainer"
+		style="position:relative;overflow:hidden;width:321px;height:241px;;background:url('editors/images/grid.gif');cursor:default;">
+	</div>
+</body>
+</html>
